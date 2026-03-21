@@ -29,6 +29,9 @@ Thumbs.db
 *.sqlite3
 data/
 
+# Generated dataset (large; run generate_fake_data.py after clone)
+output/
+
 # Streamlit
 .streamlit/secrets.toml
 

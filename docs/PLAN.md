@@ -1,6 +1,6 @@
 # PLAN.md - Claude Code Analytics Platform
 
-This plan implements `AGENTS.md` for Provectus. Each numbered step is an **Important Step**: finish the step, run **pytest** as proof of work, then **git commit** with a descriptive message, then **append** to `REPORTS.md` using the exact format below.
+This plan implements `AGENTS.md` (in this `docs/` folder) for Provectus. Each numbered step is an **Important Step**: finish the step, run **pytest** as proof of work, then **git commit** with a descriptive message, then **append** to `REPORTS.md` in this folder using the exact format below.
 
 ---
 
@@ -15,7 +15,7 @@ This plan implements `AGENTS.md` for Provectus. Each numbered step is an **Impor
 **REPORT:** [Clear explanation of what was done and how it was implemented]
 ```
 
-4. **Markdown and UI style (project-wide):** Follow `AGENTS.md`: palette for Streamlit as specified; **no emojis** and **no em-dashes** in UI, code comments, or project Markdown (including `README.md`, `REPORTS.md`, and this plan where updated in-repo).
+4. **Markdown and UI style (project-wide):** Follow `AGENTS.md`: palette for Streamlit as specified; **no emojis** and **no em-dashes** in UI, code comments, or project Markdown (including `docs/README.md`, `docs/REPORTS.md`, and this plan where updated in-repo).
 
 ---
 
@@ -29,7 +29,7 @@ This plan implements `AGENTS.md` for Provectus. Each numbered step is an **Impor
 | Forecasting | **Daily total cost** and **cost per Practice**; **30-day** horizon; require **at least 14 days** of history; otherwise show a clear **Not enough data for forecasting** message (no silent fallback). |
 | Tests | **pytest** is the only standard for step verification. |
 | Packaging | **`pyproject.toml`** as source of truth; optional **`requirements.txt`** generated or synced for deployment docs. |
-| Audit trail | **Step 0** includes `git init` and the first `REPORTS.md` entry (environment and repo initialization). |
+| Audit trail | **Step 0** includes `git init` and the first `docs/REPORTS.md` entry (environment and repo initialization). |
 
 ---
 
@@ -38,24 +38,24 @@ This plan implements `AGENTS.md` for Provectus. Each numbered step is an **Impor
 ```
 provectus/
   pyproject.toml
-  requirements.txt          # optional; synced from pyproject for deploy docs
-  README.md
-  AGENTS.md
-  PLAN.md
-  REPORTS.md
+  README.md                 # short landing page; links into docs/
+  docs/
+    README.md               # full operator documentation
+    AGENTS.md
+    PLAN.md
+    REPORTS.md
   .gitignore
-  output/                   # default data directory (canonical for this assignment)
+  output/                   # local only (gitignored); run generate_fake_data.py
     employees.csv
     telemetry_logs.jsonl
-  generate_fake_data.py     # existing; not required to change unless tests need it
+  generate_fake_data.py
   src/
-    __init__.py
-    ingestion/              # parsers, cleaning, file discovery
-    database/               # SQLAlchemy models, engine/session, migrations optional
-    analytics/              # aggregates, health metrics, forecasting
-    app.py                  # Streamlit entry
+    ingestion/
+    database/
+    analytics/
+    app.py
   tests/
-    conftest.py             # shared fixtures (temp dirs, sample rows, temp SQLite)
+    fixtures/
     ...
 ```
 
@@ -70,7 +70,7 @@ provectus/
 - Create `src/` package skeleton (`ingestion`, `database`, `analytics`) and `src/app.py` stub (or empty module with docstring only).
 - Add `tests/` with a first pytest module that asserts repository layout and that core packages import (smoke test).
 - Add `.gitignore` appropriate for Python, venvs, SQLite artifacts, and OS cruft.
-- Create **`REPORTS.md`** if it does not exist.
+- Create **`docs/REPORTS.md`** if it does not exist.
 
 **Proof of work**
 
@@ -80,7 +80,7 @@ provectus/
 
 - Example message: `chore: initialize repo, pyproject, and test scaffold`
 
-**REPORTS.md**
+**docs/REPORTS.md**
 
 - Append **STEP 0** documenting: Python version target, creation of `pyproject.toml`, directory layout, `git init`, and that pytest smoke tests passed.
 
@@ -92,7 +92,7 @@ provectus/
 
 - Define SQLAlchemy models for **`Employees`** and **`Events`** aligned with ingested fields (include columns needed for joins and analytics: at minimum employee identity, Practice, Level, and event fields for cost, duration, tokens, tool outcomes, timestamps, `user.email`, and raw error flags if present in telemetry).
 - Provide a small **database API**: engine creation, session factory, and `create_all` (or equivalent) for SQLite.
-- Store the SQLite file under a configurable path (environment variable with a sensible default under the project, for example `data/analytics.db`), and document it in `README.md`.
+- Store the SQLite file under a configurable path (environment variable with a sensible default under the project, for example `data/analytics.db`), and document it in `docs/README.md`.
 - Add **indexes** on columns used for joins and common filters (for example: employee email, event timestamp, practice, level).
 - Use **parameterized** SQLAlchemy queries only (no string-concatenated SQL).
 
@@ -104,7 +104,7 @@ provectus/
 
 - Example message: `feat(database): add Employees and Events models with SQLite indexes`
 
-**REPORTS.md**
+**docs/REPORTS.md**
 
 - Append **STEP 1** describing schema, index choices, and how the DB path is configured.
 
@@ -129,7 +129,7 @@ provectus/
 
 - Example message: `feat(ingestion): parse employees CSV and telemetry JSONL with env data dir`
 
-**REPORTS.md**
+**docs/REPORTS.md**
 
 - Append **STEP 2** describing parsers, cleaning rules, and the env default to `output/`.
 
@@ -152,7 +152,7 @@ provectus/
 
 - Example message: `feat(etl): load employees and events into SQLite with email join`
 
-**REPORTS.md**
+**docs/REPORTS.md**
 
 - Append **STEP 3** describing load order, join strategy, and how to rebuild the database.
 
@@ -179,7 +179,7 @@ provectus/
 
 - Example message: `feat(analytics): aggregates, operational health, temporal peaks, cost forecasts`
 
-**REPORTS.md**
+**docs/REPORTS.md**
 
 - Append **STEP 4** summarizing metrics, forecasting method, and the 14-day / 30-day rules.
 
@@ -205,7 +205,7 @@ provectus/
 
 - Example message: `feat(app): Streamlit dashboard with management and developer views`
 
-**REPORTS.md**
+**docs/REPORTS.md**
 
 - Append **STEP 5** describing navigation, view split, styling, and how the app loads from SQLite.
 
@@ -215,7 +215,7 @@ provectus/
 
 **Goals**
 
-- Update **`README.md`**: how to install (`pip install -e .` or `pip install .`), set `PROVECTUS_DATA_DIR`, run pytest, run `streamlit run src/app.py` (or module path you configure in `pyproject.toml`).
+- Update **`docs/README.md`**: how to install (`pip install -e .` or `pip install .`), set `PROVECTUS_DATA_DIR`, run pytest, run `streamlit run src/app.py` (or module path you configure in `pyproject.toml`).
 - Generate or maintain **`requirements.txt`** from `pyproject.toml` (for example `pip freeze` after install, or `pip-compile`, or documented export command) so deployment instructions stay simple.
 - Run the **full** pytest suite; fix any flakiness (temp paths, Windows path separators).
 
@@ -227,7 +227,7 @@ provectus/
 
 - Example message: `docs: README, optional requirements.txt, and test suite hardening`
 
-**REPORTS.md**
+**docs/REPORTS.md**
 
 - Append **STEP 6** documenting operator runbook, env vars, and final verification.
 
@@ -236,9 +236,9 @@ provectus/
 ## Definition of done
 
 - All steps **0 through 6** completed in order.
-- Each step has a **git commit**, a **green pytest** run, and a matching **`REPORTS.md`** entry in the required format.
+- Each step has a **git commit**, a **green pytest** run, and a matching **`docs/REPORTS.md`** entry in the required format.
 - Running the app against default `output/` data produces Management and Developer views without login, with forecasts obeying the **14-day minimum** and **30-day** horizon rules.
-- Codebase respects `AGENTS.md` structure, frameworks, typing, and style constraints.
+- Codebase respects `docs/AGENTS.md` structure, frameworks, typing, and style constraints.
 
 ---
 

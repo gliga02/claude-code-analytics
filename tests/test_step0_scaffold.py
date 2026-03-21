@@ -13,10 +13,11 @@ SRC = PROJECT_ROOT / "src"
 
 def test_project_root_contains_expected_paths() -> None:
     assert (PROJECT_ROOT / "pyproject.toml").is_file()
-    assert (PROJECT_ROOT / "PLAN.md").is_file()
+    assert (PROJECT_ROOT / "README.md").is_file()
+    assert (PROJECT_ROOT / "docs" / "PLAN.md").is_file()
+    assert (PROJECT_ROOT / "docs" / "AGENTS.md").is_file()
+    assert (PROJECT_ROOT / "docs" / "README.md").is_file()
     assert (PROJECT_ROOT / "AGENTS.md").is_file()
-    assert (PROJECT_ROOT / "output" / "employees.csv").is_file()
-    assert (PROJECT_ROOT / "output" / "telemetry_logs.jsonl").is_file()
     assert (SRC / "ingestion" / "__init__.py").is_file()
     assert (SRC / "database" / "__init__.py").is_file()
     assert (SRC / "analytics" / "__init__.py").is_file()
