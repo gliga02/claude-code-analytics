@@ -1,0 +1,4 @@
+# Dev and test extras. Keep in sync with pyproject.toml [project.optional-dependencies] dev.
+-r requirements.txt
+pytest>=7.4
+mypy>=1.7

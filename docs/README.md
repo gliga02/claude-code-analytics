@@ -1,5 +1,29 @@
 # Claude Code Analytics Platform (documentation)
 
+## Operator runbook
+
+**Python:** 3.10 or newer.
+
+**Install (pick one):**
+
+- **Editable package (recommended for development):** from the repository root, run `pip install -e .` for runtime only, or `pip install -e ".[dev]"` to include pytest and mypy.
+- **Flat requirements files:** `pip install -r requirements.txt` for runtime dependencies, or `pip install -r requirements-dev.txt` before running the full test suite.
+
+**Environment variables:**
+
+| Variable | Default | Purpose |
+| -------- | ------- | ------- |
+| `PROVECTUS_DATA_DIR` | `output/` under the project root | Directory containing `employees.csv` and `telemetry_logs.jsonl`. |
+| `PROVECTUS_DATABASE_PATH` | `data/analytics.db` under the project root | SQLite file for the analytics database. |
+
+**Typical workflow:** run `python generate_fake_data.py`, create the schema and load the database (commands below), then `streamlit run src/app.py`.
+
+**Tests:** from the project root, run `python -m pytest tests/ -q` for the full suite. Use `pytest tests/test_stepN_*.py -v` to focus on one step module.
+
+**Locked export (optional):** in a clean virtual environment, install this project with `pip install -e ".[dev]"`, then run `pip freeze > requirements-lock.txt` for a full transitive pin. The committed `requirements.txt` lists direct runtime dependencies only and stays aligned with `pyproject.toml`; it is not a transitive lock.
+
+---
+
 ## Data: create `output/` locally (not in Git)
 
 The **`output/`** directory is **gitignored** because generated `telemetry_logs.jsonl` can be very large. After you clone this repository, create CSV and JSONL under `output/` by running:

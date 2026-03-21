@@ -13,6 +13,8 @@ SRC = PROJECT_ROOT / "src"
 
 def test_project_root_contains_expected_paths() -> None:
     assert (PROJECT_ROOT / "pyproject.toml").is_file()
+    assert (PROJECT_ROOT / "requirements.txt").is_file()
+    assert (PROJECT_ROOT / "requirements-dev.txt").is_file()
     assert (PROJECT_ROOT / "README.md").is_file()
     assert (PROJECT_ROOT / "docs" / "PLAN.md").is_file()
     assert (PROJECT_ROOT / "docs" / "AGENTS.md").is_file()
@@ -47,6 +49,32 @@ def test_package_modules_importable() -> None:
     assert ingestion.__doc__
     assert database.__doc__
     assert analytics.__doc__
+
+
+def test_requirements_txt_matches_pyproject_runtime_deps() -> None:
+    """Keep requirements.txt aligned with pyproject.toml [project.dependencies]."""
+    pyproject = (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    req = (PROJECT_ROOT / "requirements.txt").read_text(encoding="utf-8")
+    in_deps = False
+    expected: list[str] = []
+    for raw in pyproject.splitlines():
+        line = raw.strip()
+        if line.startswith("dependencies = ["):
+            in_deps = True
+            continue
+        if in_deps:
+            if line.startswith("]"):
+                break
+            if not line or line.startswith("#"):
+                continue
+            spec = line.rstrip(",").strip()
+            if spec.startswith('"') and spec.endswith('"'):
+                spec = spec[1:-1]
+            if spec:
+                expected.append(spec)
+    assert expected, "expected [project.dependencies] entries in pyproject.toml"
+    for spec in expected:
+        assert spec in req, f"missing {spec!r} in requirements.txt"
 
 
 def test_app_module_importable() -> None:

@@ -23,6 +23,8 @@ Optional larger run: `python generate_fake_data.py --num-users 100 --num-session
 
 ## Quick start
 
+Runtime-only install without editable mode: `pip install -r requirements.txt`. For tests, use `pip install -r requirements-dev.txt` or `pip install -e ".[dev]"`.
+
 ```bash
 pip install -e ".[dev]"
 python -c "from database.session import create_engine_instance, init_schema; from database.load import load_database; init_schema(create_engine_instance()); print(load_database())"
