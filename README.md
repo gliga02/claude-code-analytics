@@ -81,6 +81,20 @@ Verify parsers and cleaning with pytest:
 pytest tests/test_step2_ingestion.py -v
 ```
 
+### Load data into SQLite (ETL)
+
+After tables exist (`init_schema`), reload all rows from the configured data directory into the database (truncate and insert, with `employee_id` resolved from `user_email`):
+
+```bash
+python -c "from database.load import load_database; print(load_database())"
+```
+
+Use `PROVECTUS_DATA_DIR` and `PROVECTUS_DATABASE_PATH` as needed. Verify with:
+
+```bash
+pytest tests/test_step3_etl.py -v
+```
+
 ## Notes
 
 - All user identifiers are synthetic

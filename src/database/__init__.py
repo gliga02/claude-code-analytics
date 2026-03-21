@@ -1,5 +1,6 @@
 """SQLite persistence and SQLAlchemy models."""
 
+from database.load import load_database
 from database.models import Base, Employee, Event
 from database.session import (
     create_engine_instance,
@@ -16,4 +17,5 @@ __all__ = [
     "create_session_factory",
     "get_database_path",
     "init_schema",
+    "load_database",
 ]

@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -29,7 +29,17 @@ def create_engine_instance(*, echo: bool = False) -> Engine:
     path = get_database_path()
     path.parent.mkdir(parents=True, exist_ok=True)
     url = f"sqlite:///{path.as_posix()}"
-    return create_engine(url, echo=echo)
+    engine = create_engine(url, echo=echo)
+
+    @event.listens_for(engine, "connect")
+    def _sqlite_pragma(dbapi_connection: object, _connection_record: object) -> None:
+        if engine.dialect.name != "sqlite":
+            return
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
+    return engine
 
 
 def init_schema(engine: Engine) -> None:
