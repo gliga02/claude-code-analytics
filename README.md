@@ -52,6 +52,25 @@ Each log record contains a batch of `logEvents`. Each event has a JSON `message`
 | level | Seniority level (L1–L10) |
 | location | Country |
 
+## Analytics SQLite database
+
+The analytics platform (see `PLAN.md`) stores data in SQLite via SQLAlchemy.
+
+- **Default path:** `data/analytics.db` under the project root (created on first use).
+- **Override:** set environment variable `PROVECTUS_DATABASE_PATH` to your SQLite file path.
+
+After `pip install -e ".[dev]"` from the repo root, create empty tables:
+
+```bash
+python -c "from database.session import create_engine_instance, init_schema; init_schema(create_engine_instance())"
+```
+
+Verify the schema with pytest:
+
+```bash
+pytest tests/test_step1_database.py -v
+```
+
 ## Notes
 
 - All user identifiers are synthetic
