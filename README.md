@@ -95,6 +95,14 @@ Use `PROVECTUS_DATA_DIR` and `PROVECTUS_DATABASE_PATH` as needed. Verify with:
 pytest tests/test_step3_etl.py -v
 ```
 
+### Analytics API
+
+The `analytics` package joins events to employees, aggregates usage by practice and level, summarizes tool and API error health, ranks peak hours (UTC) and weekdays, and fits scikit-learn linear regressions for 30-day cost forecasts (requires 14 distinct days with data per series; otherwise the message `Not enough data for forecasting` applies). Run:
+
+```bash
+pytest tests/test_step4_analytics.py -v
+```
+
 ## Notes
 
 - All user identifiers are synthetic
