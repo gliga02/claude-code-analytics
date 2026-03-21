@@ -52,4 +52,7 @@ def test_app_module_importable() -> None:
     import app as app_module
 
     assert hasattr(app_module, "main")
+    assert hasattr(app_module, "run_dashboard")
+    assert hasattr(app_module, "render_management_view")
+    assert hasattr(app_module, "render_developer_view")
     app_module.main()

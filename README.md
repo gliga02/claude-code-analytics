@@ -103,6 +103,20 @@ The `analytics` package joins events to employees, aggregates usage by practice 
 pytest tests/test_step4_analytics.py -v
 ```
 
+### Streamlit dashboard
+
+From the repo root (with `pip install -e .` applied and a populated SQLite file at `PROVECTUS_DATABASE_PATH` or the default `data/analytics.db`):
+
+```bash
+streamlit run src/app.py
+```
+
+Use the sidebar to switch **Management** (KPIs, trends, forecasts, peak usage) and **Developer** (filters, event table, tool and API error summaries). Click **Refresh cached data** after reloading the database. Verify helpers with:
+
+```bash
+pytest tests/test_step5_app.py -v
+```
+
 ## Notes
 
 - All user identifiers are synthetic

@@ -12,7 +12,7 @@ from analytics.forecasting import (
     forecast_result_to_dict,
 )
 from analytics.health import api_error_summary, tool_success_summary
-from analytics.io import fetch_events_analysis_dataframe
+from analytics.io import fetch_events_analysis_dataframe, fetch_events_developer_dataframe
 from analytics.temporal import peak_usage_by_hour, peak_usage_by_weekday
 from analytics.trends import usage_by_practice_level
 
@@ -23,6 +23,7 @@ __all__ = [
     "CostForecastResult",
     "api_error_summary",
     "fetch_events_analysis_dataframe",
+    "fetch_events_developer_dataframe",
     "forecast_cost_by_practice",
     "forecast_daily_total_cost",
     "forecast_result_to_dict",
