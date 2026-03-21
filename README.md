@@ -71,6 +71,16 @@ Verify the schema with pytest:
 pytest tests/test_step1_database.py -v
 ```
 
+### Input data directory (ingestion)
+
+Ingestion reads `employees.csv` and `telemetry_logs.jsonl` from a directory set by `PROVECTUS_DATA_DIR`. When unset, it defaults to `output/` under the project root (the same folder produced by `generate_fake_data.py`).
+
+Verify parsers and cleaning with pytest:
+
+```bash
+pytest tests/test_step2_ingestion.py -v
+```
+
 ## Notes
 
 - All user identifiers are synthetic
