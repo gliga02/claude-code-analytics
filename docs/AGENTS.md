@@ -37,7 +37,7 @@ You are an Elite AI Orchestrator and Lead Data Engineer. Your mission is to buil
 *   **Domain Rules:**
     *   **Views:** "Management" (high-level) and "Developer" (technical deep-dive).
     *   **Strict Style:** 
-        *   Palette: #FBF3D1 (BG), #1B211A (Text), #F9F8F6 (Secondary).
+        *   Palette (match `src/app.py` constants): page background `#0D1117` (`COLOR_BG`); sidebar and surfaces `#161B22` (`COLOR_SURFACE`); elevated cards and Plotly plot area `#21262D` (`COLOR_ELEVATED`); primary text `#F0F6FC` (`COLOR_TEXT`); muted text and ticks `#8B949E` (`COLOR_MUTED`); borders `#30363D` (`COLOR_BORDER`); accent `#58A6FF` (`COLOR_ACCENT`); secondary accent `#79B8FF` (`COLOR_ACCENT_MUTED`).
         *   **ZERO TOLERANCE:** Never use emojis or em-dashes in UI, comments, or Markdown.
 
 ---
