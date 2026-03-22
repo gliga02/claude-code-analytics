@@ -10,6 +10,7 @@ from analytics.forecasting import (
     forecast_cost_by_practice,
     forecast_daily_total_cost,
     forecast_result_to_dict,
+    log_forecast_diagnostics,
 )
 from analytics.health import api_error_summary, tool_success_summary
 from analytics.io import fetch_events_analysis_dataframe, fetch_events_developer_dataframe
@@ -27,6 +28,7 @@ __all__ = [
     "forecast_cost_by_practice",
     "forecast_daily_total_cost",
     "forecast_result_to_dict",
+    "log_forecast_diagnostics",
     "peak_usage_by_hour",
     "peak_usage_by_weekday",
     "tool_success_summary",

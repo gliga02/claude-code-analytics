@@ -212,3 +212,10 @@ def test_forecast_linear_trend_numpy_close() -> None:
     assert res.forecast_cost_usd is not None
     expected_next = 2.0 * MIN_HISTORY_DAYS + 3.0
     assert res.forecast_cost_usd[0] == pytest.approx(expected_next, rel=1e-5, abs=1e-5)
+    assert res.chart_uses_train_test_split is False
+    assert res.r2_in_sample is not None
+    assert res.r2_in_sample == pytest.approx(1.0, abs=1e-9)
+    assert res.mae_in_sample is not None
+    assert res.mae_in_sample == pytest.approx(0.0, abs=1e-9)
+    assert res.holdout_n_train is not None and res.holdout_n_test is not None
+    assert res.holdout_mae is not None

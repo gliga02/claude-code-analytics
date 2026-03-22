@@ -21,6 +21,7 @@ from analytics import (
     fetch_events_developer_dataframe,
     forecast_cost_by_practice,
     forecast_daily_total_cost,
+    log_forecast_diagnostics,
     peak_usage_by_hour,
     peak_usage_by_weekday,
     tool_success_summary,
@@ -37,6 +38,11 @@ COLOR_MUTED = "#8B949E"
 COLOR_BORDER = "#30363D"
 COLOR_ACCENT = "#58A6FF"
 COLOR_ACCENT_MUTED = "#79B8FF"
+
+# Management "Usage" bar charts (practice / level)
+COLOR_USAGE_BAR = "#0066FF"
+COLOR_USAGE_BAR_HIGHLIGHT = "#E6B325"
+COLOR_USAGE_TOP2 = "#FCD400"
 
 # Streamlit's Plotly view can print the word "undefined" if title or legend title is null in JSON.
 _PLOTLY_CHART_CONFIG: dict[str, bool] = {"displayModeBar": True, "displaylogo": False}
@@ -70,6 +76,84 @@ def filter_developer_events(
     if "event_ts" in out.columns:
         out = out.sort_values("event_ts", ascending=False)
     return out
+
+
+def _is_usage_highlight_practice_level(practice: object, level: object) -> bool:
+    """Highlight bars for Frontend Engineering L6 and ML Engineering L5 (fake data roles)."""
+    if pd.isna(practice) or pd.isna(level):
+        return False
+    p = str(practice).strip().lower()
+    lv = str(level).strip().upper()
+    if "frontend" in p and lv == "L6":
+        return True
+    if "ml" in p and "engineering" in p and lv == "L5":
+        return True
+    return False
+
+
+def _usage_bar_colors_ranked(trends_sorted: pd.DataFrame) -> list[str]:
+    """Top two bars (highest metric) use COLOR_USAGE_TOP2; bottom two match default bar color; optional role highlight."""
+    n = len(trends_sorted)
+    colors: list[str] = []
+    for pos in range(n):
+        row = trends_sorted.iloc[pos]
+        in_top = pos < 2
+        in_bottom = pos >= max(0, n - 2)
+        if in_top and in_bottom and n <= 2:
+            colors.append(COLOR_USAGE_TOP2)
+        elif in_top:
+            colors.append(COLOR_USAGE_TOP2)
+        elif in_bottom:
+            colors.append(COLOR_USAGE_BAR)
+        elif _is_usage_highlight_practice_level(row["practice"], row["level"]):
+            colors.append(COLOR_USAGE_BAR_HIGHLIGHT)
+        else:
+            colors.append(COLOR_USAGE_BAR)
+    return colors
+
+
+def _usage_x_category_labels(trends_sorted: pd.DataFrame) -> list[str]:
+    return [f"{row['practice']}<br>{row['level']}" for _, row in trends_sorted.iterrows()]
+
+
+def _append_usage_legend_top2_only(fig: go.Figure) -> None:
+    """Single legend swatch for the two highest-usage bars (marker-only trace, not drawn on axes)."""
+    fig.add_trace(
+        go.Scatter(
+            x=[None],
+            y=[None],
+            mode="markers",
+            marker=dict(size=14, color=COLOR_USAGE_TOP2, symbol="square", line=dict(width=0)),
+            name="Two highest usage",
+            showlegend=True,
+            hoverinfo="skip",
+        )
+    )
+
+
+def _show_usage_bar_chart(fig: go.Figure, x_categories: list[str], tick_text: list[str]) -> None:
+    """Style and render Usage bars with readable selective x tick labels."""
+    _style_plotly(fig)
+    fig.update_layout(showlegend=True)
+    fig.update_xaxes(
+        type="category",
+        tickmode="array",
+        tickvals=x_categories,
+        ticktext=tick_text,
+        tickangle=-38,
+        automargin=True,
+        tickfont=dict(size=12, color=COLOR_TEXT),
+        title_font=dict(color=COLOR_MUTED, size=12),
+    )
+    kwargs: dict[str, Any] = {
+        "figure_or_data": fig,
+        "use_container_width": True,
+        "config": _PLOTLY_CHART_CONFIG,
+    }
+    try:
+        st.plotly_chart(**kwargs, theme=None)
+    except TypeError:
+        st.plotly_chart(**kwargs)
 
 
 def _style_plotly(fig: go.Figure) -> go.Figure:
@@ -319,36 +403,47 @@ def render_management_view(analysis_df: pd.DataFrame) -> None:
     if trends.empty:
         st.caption("No rows to aggregate.")
     else:
+        trends_cost = trends.sort_values("total_cost_usd", ascending=False).reset_index(drop=True)
+        x_cat_c = _usage_x_category_labels(trends_cost)
+        colors_c = _usage_bar_colors_ranked(trends_cost)
         fig_t = go.Figure(
             data=[
                 go.Bar(
-                    x=trends.apply(lambda r: f"{r['practice']} / {r['level']}", axis=1),
-                    y=trends["total_cost_usd"],
-                    marker_color=COLOR_ACCENT,
+                    x=x_cat_c,
+                    y=trends_cost["total_cost_usd"],
+                    marker_color=colors_c,
                     marker_line_width=0,
                     name="Cost USD",
+                    showlegend=False,
                 )
             ]
         )
         fig_t.update_layout(xaxis_title="Practice / Level", yaxis_title="Total cost (USD)")
-        _show_plotly(fig_t)
+        _append_usage_legend_top2_only(fig_t)
+        _show_usage_bar_chart(fig_t, x_cat_c, list(x_cat_c))
 
+        trends_tok = trends.sort_values("total_tokens", ascending=False).reset_index(drop=True)
+        x_cat_k = _usage_x_category_labels(trends_tok)
+        colors_k = _usage_bar_colors_ranked(trends_tok)
         fig_k = go.Figure(
             data=[
                 go.Bar(
-                    x=trends.apply(lambda r: f"{r['practice']} / {r['level']}", axis=1),
-                    y=trends["total_tokens"],
-                    marker_color=COLOR_ACCENT_MUTED,
+                    x=x_cat_k,
+                    y=trends_tok["total_tokens"],
+                    marker_color=colors_k,
                     marker_line_width=0,
                     name="Tokens",
+                    showlegend=False,
                 )
             ]
         )
         fig_k.update_layout(xaxis_title="Practice / Level", yaxis_title="Total tokens")
-        st.plotly_chart(_style_plotly(fig_k), use_container_width=True)
+        _append_usage_legend_top2_only(fig_k)
+        _show_usage_bar_chart(fig_k, x_cat_k, list(x_cat_k))
 
     st.subheader("Forecasts")
     total_fc = forecast_daily_total_cost(analysis_df)
+    log_forecast_diagnostics("daily_total_cost (Management chart)", total_fc)
     if total_fc.sufficient_data and total_fc.forecast_cost_usd is not None:
         hist = total_fc.historical.copy()
         hist["day"] = pd.to_datetime(hist["day"], utc=True)
@@ -359,8 +454,8 @@ def render_management_view(analysis_df: pd.DataFrame) -> None:
                 y=hist["cost_usd"],
                 mode="lines+markers",
                 name="History",
-                line=dict(color=COLOR_ACCENT, width=2),
-                marker=dict(size=6, color=COLOR_ACCENT),
+                line=dict(color=COLOR_USAGE_BAR, width=2),
+                marker=dict(size=6, color=COLOR_USAGE_BAR),
             )
         )
         f_days = pd.to_datetime(total_fc.forecast_day_start, utc=True)
@@ -370,7 +465,7 @@ def render_management_view(analysis_df: pd.DataFrame) -> None:
                 y=total_fc.forecast_cost_usd,
                 mode="lines",
                 name="Next 30 days",
-                line=dict(color=COLOR_MUTED, width=2, dash="dash"),
+                line=dict(color=COLOR_USAGE_TOP2, width=2, dash="dash"),
             )
         )
         fx.update_layout(xaxis_title="Day (UTC)", yaxis_title="Cost (USD)")
@@ -405,7 +500,7 @@ def render_management_view(analysis_df: pd.DataFrame) -> None:
                     go.Bar(
                         x=ph["hour_utc"],
                         y=ph["event_count"],
-                        marker_color=COLOR_ACCENT,
+                        marker_color=COLOR_USAGE_BAR,
                         marker_line_width=0,
                         name="Events",
                     )
@@ -423,7 +518,7 @@ def render_management_view(analysis_df: pd.DataFrame) -> None:
                     go.Bar(
                         x=pw["weekday"],
                         y=pw["event_count"],
-                        marker_color=COLOR_ACCENT_MUTED,
+                        marker_color=COLOR_USAGE_BAR,
                         marker_line_width=0,
                         name="Events",
                     )
